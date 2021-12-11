@@ -16,15 +16,17 @@
 //=========================================================================================================
 CEEPROM_Base::CEEPROM_Base()
 {
-    // Save our wear-leveling parameters
-    m_slot_count = 1;
-    m_slot_size = 0;
+    // Set up default wear-leveling parameters (i.e., no wear-leveling)
+    m_wl = { 1, 0, nullptr };
 
     // By default we perform "dirty checking" on the data structure prior to writing it to physical EEPROM
     m_is_dirty_checking = true;
 
     // The EEPROM data structure in RAM is not yet dirty
     m_is_dirty = false;
+
+    // Assume for the moment that we won't be doing wear-level caching
+    m_is_caching = false;
 
     // Just for good measure, clear the error status
     m_error = error_t::OK;
@@ -115,7 +117,7 @@ bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, uint16_t* p_addr
     memset(p_result, 0, sizeof header_t);
 
     // Loop through every possible slot
-    for (int slot = 0; slot < m_slot_count; ++slot)
+    for (int slot = 0; slot < m_wl.count; ++slot)
     {
         // Find the EEPROM address of this slot
         uint16_t address = slot_to_header_address(slot);
@@ -150,14 +152,14 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address)
     uint32_t  oldest_edition = 0xFFFFFFFF;
 
     // If there's only one slot, its address is zero
-    if (m_slot_count == 1)
+    if (m_wl.count == 1)
     {
         *p_address = 0;
         return true;
     }
 
     // Loop through every possible slot
-    for (int slot = 0; slot < m_slot_count; ++slot)
+    for (int slot = 0; slot < m_wl.count; ++slot)
     {
         // Find the EEPROM address of this slot
         uint16_t address = slot_to_header_address(slot);
@@ -290,7 +292,7 @@ bool CEEPROM_Base::destroy()
     memset(&m_header, 0xFF, sizeof m_header);
 
     // Loop through every slot in EEPROM...
-    for (int slot = 0; slot < m_slot_count; ++slot)
+    for (int slot = 0; slot < m_wl.count; ++slot)
     {
         // Compute the EEPROM address of this slot
         uint16_t address = slot_to_header_address(slot);
@@ -348,10 +350,10 @@ uint32_t CEEPROM_Base::compute_crc(size_t data_length)
 uint16_t CEEPROM_Base::slot_to_header_address(int slot)
 {
     // If we're not doing wear leveling, everything always goes into slot 0
-    if (m_slot_count == 1) return 0;
+    if (m_wl.count == 1) return 0;
 
     // Return the EEPROM address of this slot
-    return slot * m_slot_size;
+    return slot * m_wl.size;
 }
 //=========================================================================================================
 
@@ -396,7 +398,7 @@ bool CEEPROM_Base::is_dirty()
 bool CEEPROM_Base::bug_check()
 {
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < m_data.length)
+    if (m_wl.count > 1 && m_wl.size < m_data.length)
     {
         m_error = error_t::BUG;
         return true;

@@ -72,18 +72,20 @@ protected:
     // Data descriptor - describes the user's data structure
     struct { void* ptr; uint16_t length; uint16_t format; void* clean_copy; } m_data;
 
+    // Wear leveling configuration
+    struct { uint16_t count; uint16_t size; uint32_t* cache; } m_wl;
+    
     // This is the error code set by one of our public API calls
     error_t     m_error;
-
-    // Number and size of storage "slots" for wear-leveling
-    uint16_t    m_slot_count;
-    uint16_t    m_slot_size;
 
     // If this is true, we're performing "dirty checking" of the data prior to writing 
     bool        m_is_dirty_checking;
 
     // If we are "dirty checking", derived classes can set this flag to indicate the data is dirty
     bool        m_is_dirty;
+
+    // Pointer to the wear-leveling cache if it exists
+    uint32_t*   m_wl_cache;
 
     // Returns true if the derived data structure won't fit into a wear-leveling slot
     bool        bug_check();
@@ -105,6 +107,11 @@ protected:
 
     // Mark the data in the RAM structure as "clean"
     void        mark_data_as_clean();
+
+private:
+
+    // This will be true if we are caching edition numbers for wear-leveling
+    bool        m_is_caching;
 };
 
 

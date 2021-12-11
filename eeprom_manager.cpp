@@ -42,9 +42,8 @@ CEEPROM::CEEPROM() : CEEPROM_Base()
     // Fill in the data descriptor
     m_data = { &data, sizeof data, DATA_FORMAT, &clean };
 
-    // We're going to do wear leveling
-    m_slot_count = 4;
-    m_slot_size = 0x100;
+    // Fill in the wear-leveling configuration
+    m_wl = { WEAR_LEVELING_SLOTS, WEAR_LEVELING_SIZE, m_cache_buffer };
 
 }
 //=========================================================================================================

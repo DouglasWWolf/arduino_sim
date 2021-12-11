@@ -26,6 +26,24 @@
 // 
 //          format = The format number of your data structure
 // 
+// -------------------------------
+// DECLARING YOUR DATA STRUCTURE
+// -------------------------------
+// 
+//     Your derived class should declare a structure to be saved in EEPROM, and the first field of that structure 
+//     must be a const header_t.   A typical data structure would look something like this:
+// 
+//         struct data_t
+//         {
+//             const header_t header = {0};
+//             uint32_t some_field;
+//             uint16_t some_other_field;
+//             uint16_t and_this_field_too;
+//             char string_name[20];
+//              /* ETC */
+//         } data;
+// 
+// 
 // --------------
 // DIRTY CHECKING
 // --------------

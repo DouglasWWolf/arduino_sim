@@ -428,7 +428,7 @@ search_cache:
 //=========================================================================================================
 // compute_crc() - Computes a CRC32 of the combined header and data structures
 //=========================================================================================================
-uint32_t CEEPROM_Base::compute_crc(size_t data_length)
+uint32_t CEEPROM_Base::compute_crc(uint16_t data_length)
 {
     // Save the existing CRC so we can restore it
     uint32_t old_crc = m_header.crc;

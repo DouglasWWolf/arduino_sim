@@ -241,7 +241,7 @@ protected:
     bool        bug_check();
 
     // Computes the CRC of the header + data
-    uint32_t    compute_crc(size_t data_length);
+    uint32_t    compute_crc(uint16_t data_length);
 
     // Returns the header of the most recent edition of our data structure found in EEPROM
     bool        find_most_recent_edition(header_t*, uint16_t* p_address, int* p_slot = nullptr);

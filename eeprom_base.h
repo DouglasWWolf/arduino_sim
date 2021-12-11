@@ -78,7 +78,7 @@
 // -------------
 // WEAR LEVELING
 // -------------
-//     If you want automatic wear-leveling, your constructor must fill in at least the first three
+//     If you want automatic wear-leveling, your constructor must fill in at least the first two
 //     fields of "m_wl", like this:
 //          
 //          count = How many storage "slots" to divide the EEPROM into

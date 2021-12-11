@@ -19,6 +19,9 @@
 //=========================================================================================================
 CEEPROM_Base::CEEPROM_Base()
 {
+    // Ensure that everything starts at a known value
+    m_data = { nullptr, 0, 0, nullptr };
+
     // Set up default wear-leveling parameters (i.e., no wear-leveling)
     m_wl = { 1, 0, nullptr };
 

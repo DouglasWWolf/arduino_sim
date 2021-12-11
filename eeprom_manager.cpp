@@ -33,6 +33,7 @@ void CEEPROM::initialize_new_fields()
 //=========================================================================================================
 
 
+
 //=========================================================================================================
 // Constructor() - Calls the base class, fills in the data descriptor, and configures wear-leveling
 //=========================================================================================================
@@ -43,9 +44,6 @@ CEEPROM::CEEPROM() : CEEPROM_Base()
 
     // Fill in the wear-leveling configuration, including journal caching
     m_wl = { WEAR_LEVELING_SLOTS, WEAR_LEVELING_SIZE, m_cache_buffer };
-
-    // Turn on dirty-checking
-    m_is_dirty_checking = true;
 }
 //=========================================================================================================
 

@@ -64,13 +64,6 @@ protected:
     // **********************************************************************************
     void initialize_new_fields();
 
-    // Returns a description of the data structure
-    const dd_t& data_descriptor()
-    { 
-        static const dd_t descriptor = { &data, sizeof data, DATA_FORMAT, &clean };
-        return descriptor;
-    }
-
     // Virtual functions to perform physical I/O to the EEPROM
     bool write_physical_block(void* src, uint16_t address, uint16_t length);
     bool read_physical_block(void* dest, uint16_t address, uint16_t length);

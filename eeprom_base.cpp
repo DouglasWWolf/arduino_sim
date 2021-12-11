@@ -38,12 +38,9 @@ bool CEEPROM_Base::read()
 {
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
-
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
-
+        
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < data.length + sizeof m_header)
+    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
     {
         m_error = error_t::BUG;
         return false;
@@ -52,7 +49,7 @@ bool CEEPROM_Base::read()
     // Our main data structure always defaults to all zeros.  This will ensure that if our
     // structure in RAM is longer than the structure in EEPROM, the new fields in RAM will
     // be initialized to zero
-    memset(data.ptr, 0, data.length);
+    memset(m_data.ptr, 0, m_data.length);
 
     // Fetch the header for the most recent edition of our structure that exists in EEPROM
     if (!find_most_recent_edition(&m_header))
@@ -67,13 +64,13 @@ bool CEEPROM_Base::read()
         uint16_t read_length = m_header.data_len;
 
         // Make sure it doesn't overflow our data structure in RAM!
-        if (read_length > data.length) read_length = data.length;
+        if (read_length > m_data.length) read_length = m_data.length;
  
         // Find the EEPROM address of this edition's header
         uint16_t address = edition_to_address(m_header.edition);
         
         // Read the data structure from EEPROM into RAM
-        if (!read_physical_block(data.ptr, address + sizeof m_header, read_length))
+        if (!read_physical_block(m_data.ptr, address + sizeof m_header, read_length))
         {
             m_error = error_t::IO;
         }
@@ -139,11 +136,8 @@ bool CEEPROM_Base::write(bool force_write)
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
 
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
-
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < data.length + sizeof m_header)
+    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
     {
         m_error = error_t::BUG;
         return false;
@@ -154,14 +148,14 @@ bool CEEPROM_Base::write(bool force_write)
 
     // Fill in all of the header fields
     m_header.magic    = MAGIC_NUMBER;
-    m_header.data_len = data.length;
-    m_header.format   = data.format;
+    m_header.data_len = m_data.length;
+    m_header.format   = m_data.format;
     
     // We are about to write a new edition of the data to EEPROM
     ++m_header.edition;
 
     // Fill in the CRC of the header and data 
-    m_header.crc = compute_crc(data.length);
+    m_header.crc = compute_crc(m_data.length);
 
     // Find the EEPROM address where this edition should be written
     uint16_t address = edition_to_address(m_header.edition);
@@ -173,7 +167,7 @@ bool CEEPROM_Base::write(bool force_write)
     }
 
     // Write the data structure to EEPROM
-    if (!write_physical_block(data.ptr, address + sizeof m_header, data.length))
+    if (!write_physical_block(m_data.ptr, address + sizeof m_header, m_data.length))
     {
         m_error = error_t::IO;
     }
@@ -196,11 +190,8 @@ bool CEEPROM_Base::roll_back()
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
 
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
-
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < data.length + sizeof m_header)
+    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
     {
         m_error = error_t::BUG;
         return false;
@@ -240,11 +231,8 @@ bool CEEPROM_Base::destroy()
     // Presume for the moment that this routine is going to succeed
     m_error = error_t::OK;
 
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
-
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < data.length + sizeof m_header)
+    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
     {
         m_error = error_t::BUG;
         return false;
@@ -269,7 +257,7 @@ bool CEEPROM_Base::destroy()
 
     // EEPROM has been destroyed.  Set up the appropriate structures in RAM
     memset(&m_header, 0, sizeof m_header);
-    memset(data.ptr, 0, data.length);
+    memset(m_data.ptr, 0, m_data.length);
     initialize_new_fields();
 
     // The data structure in RAM now matches the data structure in EEPROM
@@ -287,9 +275,6 @@ bool CEEPROM_Base::destroy()
 //=========================================================================================================
 uint32_t CEEPROM_Base::compute_crc(size_t data_length)
 {
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
-
     // Save the existing CRC so we can restore it
     uint32_t old_crc = m_header.crc;
 
@@ -298,7 +283,7 @@ uint32_t CEEPROM_Base::compute_crc(size_t data_length)
 
     // Compute the CRC
     uint32_t partial_crc = crc32(&m_header, sizeof m_header);
-    uint32_t new_crc = crc32(data.ptr, data.length, partial_crc);
+    uint32_t new_crc = crc32(m_data.ptr, m_data.length, partial_crc);
 
     // Restore the previous CRC
     m_header.crc = old_crc;
@@ -347,11 +332,9 @@ uint16_t CEEPROM_Base::slot_to_address(int slot)
 //=========================================================================================================
 void CEEPROM_Base::mark_data_as_clean()
 {
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
 
     // If the derived class wants to do automatic dirty checking, save a clean copy of the data
-    if (data.clean_copy) memcpy(data.clean_copy, data.ptr, data.length);
+    if (m_data.clean_copy) memcpy(m_data.clean_copy, m_data.ptr, m_data.length);
 
     // The data structure in RAM is no longer dirty
     m_is_dirty = false;
@@ -365,14 +348,12 @@ void CEEPROM_Base::mark_data_as_clean()
 //=========================================================================================================
 bool CEEPROM_Base::is_dirty()
 {
-    // Fetch information about our data structure
-    const dd_t& data = data_descriptor();
 
     // If we're not doing "dirty checking", then we always assume the data is dirty
     if (!m_is_dirty_checking) return true;
     
     // If we're doing automatic "dirty checking", see if the data differs from the clean copy
-    if (data.clean_copy && memcmp(data.ptr, data.clean_copy, data.length) != 0) return true;
+    if (m_data.clean_copy && memcmp(m_data.ptr, m_data.clean_copy, m_data.length) != 0) return true;
 
     // Last but not least, find out if the derived class has told us the data is dirty
     return m_is_dirty;

@@ -46,11 +46,6 @@ public:
 
 protected:
 
-    // Data descriptor - describes the user's data structure
-    struct dd_t { void* ptr; uint16_t length; uint16_t format; void* clean_copy; };
-
-    // Pure virtual function to return the data descriptor;
-    virtual const dd_t& data_descriptor() = 0;
         
     // Pure virtual function to initialize new fields when the dataformat changes
     virtual void initialize_new_fields() = 0;
@@ -72,6 +67,8 @@ protected:
     } m_header;
     //------------------------------------------------------
 
+    // Data descriptor - describes the user's data structure
+    struct { void* ptr; uint16_t length; uint16_t format; void* clean_copy; } m_data;
 
     // This is the error code set by one of our public API calls
     error_t     m_error;

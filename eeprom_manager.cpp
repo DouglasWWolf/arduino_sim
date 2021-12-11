@@ -35,9 +35,12 @@ void CEEPROM::initialize_new_fields()
 
 
 //=========================================================================================================
-// Constructor() - Just calls the base class
+// Constructor() - Just calls the base class and sets up the data descriptor
 //=========================================================================================================
-CEEPROM::CEEPROM(uint16_t slot_count, uint16_t slot_size) : CEEPROM_Base(slot_count, slot_size) {}
+CEEPROM::CEEPROM(uint16_t slot_count, uint16_t slot_size) : CEEPROM_Base(slot_count, slot_size)
+{
+    m_data = { &data, sizeof data, DATA_FORMAT, &clean };
+}
 //=========================================================================================================
 
 

@@ -188,7 +188,7 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address, int* p_slot)
 {
     int       slot;
     header_t  header;
-    uint32_t  oldest_edition = 0xFFFFFFFF;
+    uint32_t  oldest_edition = EMPTY_SLOT;
 
     // If there's only one slot, its address is zero
     if (m_wl.count == 1)
@@ -250,7 +250,7 @@ search_cache:
         uint16_t address = slot_to_header_address(slot);
 
         // If this slot is empty, hand this slot to the caller
-        if (this_edition == 0xFFFFFFFF)
+        if (this_edition == EMPTY_SLOT)
         {
             *p_slot = slot;
             *p_address = address;
@@ -396,7 +396,7 @@ bool CEEPROM_Base::destroy()
 //=========================================================================================================
 bool CEEPROM_Base::destroy_slot(int slot)
 {
-    header_t    destroyed_header;
+    header_t destroyed_header;
 
     // Create a "destroyed" header
     memset(&destroyed_header, 0xFF, sizeof header_t);
@@ -405,7 +405,7 @@ bool CEEPROM_Base::destroy_slot(int slot)
     uint16_t address = slot_to_header_address(slot);
 
     // If we're caching, destroy this entry in the cache
-    if (m_wl.cache) m_wl.cache[slot] = 0xFFFFFFFF;
+    if (m_wl.cache) m_wl.cache[slot] = EMPTY_SLOT;
 
     // Destroy the header in this slot
     if (!write_physical_block(&destroyed_header, address, sizeof header_t))
@@ -526,17 +526,13 @@ bool CEEPROM_Base::build_wl_cache()
     for (int slot = 0; slot < m_wl.count; ++slot)
     {
         // By default, we'll mark this slot as empty
-        m_wl.cache[slot] = 0xFFFFFFFF;
+        m_wl.cache[slot] = EMPTY_SLOT;
 
         // Compute the EEPROM address of this slot
         uint16_t address = slot_to_header_address(slot);
 
         // Read the header that's in this slot
-        if (!read_physical_block(&header, address, sizeof header))
-        {
-            m_error = error_t::IO;
-            continue;
-        }
+        if (!read_header(&header, address)) continue;
 
         // If this is a valid header, cache the edition number
         if (header.magic == MAGIC_NUMBER) m_wl.cache[slot] = header.edition;

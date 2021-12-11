@@ -341,7 +341,7 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address, int* p_slot)
 {
     int       slot;
     header_t  header;
-    uint32_t  oldest_edition = EMPTY_SLOT;
+    uint32_t  earliest_edition = EMPTY_SLOT;
 
     // If there's only one slot, its address is zero
     if (m_wl.count == 1)
@@ -373,10 +373,10 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address, int* p_slot)
             return true;
         }
 
-        // If this header is for the oldest edition we've yet seen, record it
-        if (header.edition < oldest_edition)
+        // If this header is for the earliest edition we've yet seen, record it
+        if (header.edition < earliest_edition)
         {
-            oldest_edition = header.edition;
+            earliest_edition = header.edition;
             *p_slot    = slot;
             *p_address = address;
         }
@@ -409,9 +409,9 @@ search_cache:
         }
 
         // If this header is for the oldest edition we've yet seen, record it
-        if (this_edition < oldest_edition)
+        if (this_edition < earliest_edition)
         {
-            oldest_edition = this_edition;
+            earliest_edition = this_edition;
             *p_slot = slot;
             *p_address = address;
         }

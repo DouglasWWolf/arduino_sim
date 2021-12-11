@@ -44,7 +44,6 @@ CEEPROM::CEEPROM() : CEEPROM_Base()
 
     // Fill in the wear-leveling configuration
     m_wl = { WEAR_LEVELING_SLOTS, WEAR_LEVELING_SIZE, m_cache_buffer };
-
 }
 //=========================================================================================================
 

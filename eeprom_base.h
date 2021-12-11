@@ -94,13 +94,16 @@ protected:
     uint32_t    compute_crc(size_t data_length);
 
     // Returns the header of the most recent edition of our data structure found in EEPROM
-    bool        find_most_recent_edition(header_t*, uint16_t* p_address);
+    bool        find_most_recent_edition(header_t*, uint16_t* p_address, int* p_slot = nullptr);
 
     // Returns the EEPROM address of the least recently used slot
-    bool        find_least_recent_address(uint16_t* p_address);
+    bool        find_least_recent_address(uint16_t* p_address, int* p_slot);
 
     // Converts a 0 thru N slot number into an EEPROM address
     uint16_t    slot_to_header_address(int slot);
+
+    // Destroys the header in the specied EEPROM slot
+    bool        destroy_slot(int slot);
 
     // Reports whether the data-structure in RAM is "dirty" (i.e., requires flushing to EEPROM)
     bool        is_dirty();
@@ -108,10 +111,16 @@ protected:
     // Mark the data in the RAM structure as "clean"
     void        mark_data_as_clean();
 
+    // Builds the wear-leveling cache
+    bool        build_wl_cache();
+
+    // Reads a header from EEPROM into RAM
+    bool        read_header(header_t* p_result, uint16_t address);
+
 private:
 
-    // This will be true if we are caching edition numbers for wear-leveling
-    bool        m_is_caching;
+    // This will be true if we have wear-leveling data cached
+    bool        m_is_cached;
 };
 
 

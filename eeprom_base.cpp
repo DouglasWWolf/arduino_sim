@@ -2,8 +2,6 @@
 #include "eeprom_base.h"
 #include "crc32.h"
 
-//#include <stdio.h>  /// <<<<------------- DELETE THIS!!
-
 // Our magic-number that indicates our structure exists.  In ASCII "AADW" ;-)
 #define MAGIC_NUMBER (uint32_t)0x41414457
 

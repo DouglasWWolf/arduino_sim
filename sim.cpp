@@ -24,7 +24,7 @@ int main()
     exit(1);
 #endif
 
-#if 1
+#if 0
     NVS.destroy();
     NVS.read();
 
@@ -36,14 +36,14 @@ int main()
     }
 
     exit(0);
-#
 
 #endif
 
+#if 1
     NVS.read();
     printf("%d\n", ee.run_mode);
-
     exit(1);
+#endif
 
     Knob.init(CHANNEL_A, CHANNEL_B, CLICK_PIN);
     IntThread.spawn();

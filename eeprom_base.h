@@ -23,7 +23,7 @@ public:
     enum class error_t : char { OK, IO, CRC, BUG };
 
     // Constructor.  Optionally specify number of wear-leveling slots and their size
-    // *** Derived constructors MUST FILL IN THE m_dd DATA DESCRIPTOR *****
+    // *** Derived constructors MUST FILL IN THE m_data DATA DESCRIPTOR *****
     CEEPROM_Base(uint16_t slot_count = 1, uint16_t slot_size = 0);
 
     // Call this to disable (or re-enable) dirty checking.  It's enabled by default

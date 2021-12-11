@@ -59,10 +59,6 @@ bool CEEPROM_Base::read()
     // be initialized to zero
     memset(m_data.ptr, 0, m_data.length);
 
-    // This is the length of the data structure sans header in both EEPROM and RAM
-    const uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
-    const uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
-
     // Fetch the header for the most recent edition of our structure that exists in EEPROM
     if (!find_most_recent_edition(&m_header, &address))
     {
@@ -72,6 +68,10 @@ bool CEEPROM_Base::read()
     // If a valid edition header was found, read in the main data
     if (m_header.magic == MAGIC_NUMBER)
     {
+        // This is the length of the data structure sans header in both EEPROM and RAM
+        const uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
+        const uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
+
         // We want to read in every byte of the data structure in EEPROM
         uint16_t read_length = eeprom_data_only_length;
 

@@ -201,8 +201,6 @@ bool CEEPROM_Base::destroy()
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
     if (bug_check()) return false;
 
-    // Ensure the wear-leveling cache is built if it's configured
-    build_wl_cache();
 
     // Destroy every slot in the EEPROM
     for (int slot = 0; slot < m_wl.count; ++slot) destroy_slot(slot);
@@ -227,6 +225,9 @@ bool CEEPROM_Base::destroy()
 bool CEEPROM_Base::destroy_slot(int slot)
 {
     header_t destroyed_header;
+
+    // Ensure the wear-leveling cache is built if it's configured
+    build_wl_cache();
 
     // Create a "destroyed" header
     memset(&destroyed_header, 0xFF, sizeof header_t);

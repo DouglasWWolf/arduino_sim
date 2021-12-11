@@ -10,6 +10,110 @@
 //     The ability to "roll-back" a write, as though the write never happened
 //     Seamless management of new EEPROM formats
 //     Manages storage devices of up to 64K
+// 
+// -------------------------
+// BASIC USAGE OF THIS CLASS
+// -------------------------
+//     At a bare minimum, your constructor must fill in the first three fields of "m_data", like this:
+// 
+//            ptr =  Pointer to the beginning of your data structure.  First item in it
+//                   must be a const header_t
+//
+//          length = The length of the entire structure, including the header_t at the top
+// 
+//          format = The format number of your data structure
+// 
+// --------------
+// DIRTY CHECKING
+// --------------
+// 
+//      "Dirty Checking" is an optional feature that keeps track of whether the data in your data structure has
+//      changed since the last time it was read from or written to EEPROM.  With dirty-checking enabled, during a
+//      write operation, the data will only be committed to physical EEPROM if the data structure is dirty.
+// 
+//      You can turn on automatic dirty-checking by filling in "m_data.clean_copy" with a pointer to a buffer that
+//      is large enough to hold a copy of your entire data structure.
+// 
+//      If you can't afford the memory for automatic dirty checking, your derived class can set the "m_is_dirty" flag
+//      every time your application updates a field in your data structure.  The best way to do this is to declare your
+//      data structure as "const" (so the rest of your code can't accidentally write to it), and to write a set_<field_name>
+//      routine for each field in the data structure.  For example, if you have an "int" called "flag1" in your data
+//      structure, your "set" routine would look like this:
+//              void set_flag1(int value)
+//              {
+//                  *(int*)&data.flag1 = value;
+//                  m_is_dirty = true
+//              }
+// 
+//      To turn off dirty-checking entirely, set "m_is_dirty_checking" to false in your constructor.
+//
+//                       
+//     
+// -------------
+// WEAR LEVELING
+// -------------
+//     If you want automatic wear-leveling, your constructor must fill in at least the first three
+//     fields of "m_wl", like this:
+//          
+//          count = How many storage "slots" to divide the EEPROM into
+// 
+//           size = How long each slot is, in bytes.  Must be at least as large as the size of your 
+//                  data structure
+//
+//      Optional caching of journaling data:   
+//       
+//      When wear-leveling is enabled, every time a read() or a write() is performed, the firmware must
+//      search for the most recently used slot (in the case of read) or the least recently use slot
+//      (in the case of write).  Without journal caching, this involves reading the header from each
+//      slot in EEPROM prior to every read or write.   With journal caching enabled, the data neccessary
+//      to make least-recently-used/most-recently-used decisions is cached in memory, potentially speeding
+//      up read/write operations.
+// 
+//      To enable the caching of wear-leveling journal data, your constructor should point m_wl.cache to
+//      an array of int32_t, with one element for each wear-leveling "slot"
+//       
+// --------------------------------------
+// MANAGING CHANGES TO THE DATA STRUCTURE
+// --------------------------------------
+//
+//      Occasionally it will be neccessary to release new firmware that adds a new field to the data
+//      structure.   When that firmware gets released, it will encounter devices in the field that have
+//      the old, shorter data structure, and the firmware may want to initialize it to some default value.
+// 
+//      When read() encounters an EEPROM with an older, shorter data format, it automatically initializes
+//      the new fields in the RAM data structure to zero.    You can use the "initialize_new_fields()" routine
+//      to initialize new data fields to other values if the need arises
+//
+//      Here is an example of an "initialize_new_fields()" virtual function to manage the upgrading
+//      of older data structures (existing in EEPROMS in the field) to the latest data structure:
+// 
+    /*
+
+    void DerivedClass::initialize_new_fields()
+    {
+          // This is an example for how to initialize "new_field_1" and "new_field_2" that were
+          // added to our data structure in DATA_FORMAT #2
+
+          if (m_header.format < 2)
+          {
+              new_field_1 = some_default_value;
+              new_field_2 = some_default_value;
+              (etc)
+          }
+
+          // And we also initialize "another_new_field" that was added to our data structure
+          // in DATA_FORMAT #3
+
+          if (m_header.format < 3)
+          {
+              another_new_field = some_default_value;
+              (etc)
+          }
+    }
+*/
+
+// 
+// 
 //=========================================================================================================
 #ifndef _EEPROM_BASE_H_
 #define _EEPROM_BASE_H_

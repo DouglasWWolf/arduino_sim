@@ -1,7 +1,6 @@
 #include <avr/eeprom.h>
 #include <string.h>
 #include "eeprom_manager.h"
-#include "crc32.h"
 
 
 //=========================================================================================================

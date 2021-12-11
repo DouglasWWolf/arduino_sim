@@ -84,6 +84,9 @@ protected:
     // If we are "dirty checking", derived classes can set this flag to indicate the data is dirty
     bool        m_is_dirty;
 
+    // Returns true if the derived data structure won't fit into a wear-leveling slot
+    bool        bug_check();
+
     // Computes the CRC of the header + data
     uint32_t    compute_crc(size_t data_length);
 

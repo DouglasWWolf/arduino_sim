@@ -40,11 +40,7 @@ bool CEEPROM_Base::read()
     m_error = error_t::OK;
         
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
-    {
-        m_error = error_t::BUG;
-        return false;
-    }
+    if (bug_check()) return false;
 
     // Our main data structure always defaults to all zeros.  This will ensure that if our
     // structure in RAM is longer than the structure in EEPROM, the new fields in RAM will
@@ -137,11 +133,7 @@ bool CEEPROM_Base::write(bool force_write)
     m_error = error_t::OK;
 
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
-    {
-        m_error = error_t::BUG;
-        return false;
-    }
+    if (bug_check()) return false;
 
     // If we're not forcing the write, and the data isn't "dirty", don't commit it to EEPROM
     if (!force_write && !is_dirty()) return true;
@@ -191,11 +183,7 @@ bool CEEPROM_Base::roll_back()
     m_error = error_t::OK;
 
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
-    {
-        m_error = error_t::BUG;
-        return false;
-    }
+    if (bug_check()) return false;
 
     // Fetch the header for the most recent edition of our structure that exists in EEPROM
     if (!find_most_recent_edition(&m_header))
@@ -232,11 +220,7 @@ bool CEEPROM_Base::destroy()
     m_error = error_t::OK;
 
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
-    {
-        m_error = error_t::BUG;
-        return false;
-    }
+    if (bug_check()) return false;
 
     // Destroy our header in RAM
     memset(&m_header, 0xFF, sizeof m_header);
@@ -348,7 +332,6 @@ void CEEPROM_Base::mark_data_as_clean()
 //=========================================================================================================
 bool CEEPROM_Base::is_dirty()
 {
-
     // If we're not doing "dirty checking", then we always assume the data is dirty
     if (!m_is_dirty_checking) return true;
     
@@ -357,5 +340,24 @@ bool CEEPROM_Base::is_dirty()
 
     // Last but not least, find out if the derived class has told us the data is dirty
     return m_is_dirty;
+}
+//=========================================================================================================
+
+
+
+//=========================================================================================================
+// bug_check() - Ensures that the user's data structure will fit in a wear-leveling slot
+//=========================================================================================================
+bool CEEPROM_Base::bug_check()
+{
+    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
+    if (m_slot_count > 1 && m_slot_size < m_data.length + sizeof m_header)
+    {
+        m_error = error_t::BUG;
+        return true;
+    }
+
+    // If we get here, we're bug-free  :-)
+    return false;
 }
 //=========================================================================================================

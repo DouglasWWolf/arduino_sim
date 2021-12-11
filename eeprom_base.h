@@ -270,7 +270,7 @@ protected:
     // A convenience constant
     const int header_size = sizeof(header_t);
 
-    // A convenient template class for setting data values when data is declared "const"
+    // A convenient method for setting data values when the data structure is declared "const"
     template < class T> void set(const T& dest, T value)
     {
         *(T*)&dest = value;

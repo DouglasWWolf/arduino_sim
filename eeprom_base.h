@@ -156,7 +156,8 @@ public:
     // Read the physical EEPROM into the data structure in RAM
     bool    read();
 
-    // Write the data structure in RAM to physical EEPROM
+    // Write the data structure in RAM to physical EEPROM.  Setting "force" to true will force the
+    // physical write to occur even if dirty-checking is on and the data isn't dirty
     bool    write(bool force = false);
 
     // Restore the EEPROM and data structure to where it was before the most recent "write()"

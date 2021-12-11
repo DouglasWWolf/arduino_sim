@@ -36,7 +36,6 @@ int main()
     NVS.read();
     printf("%d\n", ee.run_mode);
 
-
     exit(1);
 
     Knob.init(CHANNEL_A, CHANNEL_B, CLICK_PIN);

@@ -51,8 +51,6 @@
 // 
 //      To turn off dirty-checking entirely, set "m_is_dirty_checking" to false in your constructor.
 //
-//                       
-//     
 // -------------
 // WEAR LEVELING
 // -------------
@@ -131,6 +129,13 @@
 //         // Used to read a block of data from EEPROM
 //         virtual bool read_physical_block(void* dest, uint16_t address, uint16_t length);
 //
+// ----------
+// CHANGE LOG
+// ----------
+// 
+//   Date    Vers  Who  What
+// --------------------------------------------------------------------------------------------------------
+// 11-Dec-21   1   DWW  Initial release
 //=========================================================================================================
 #include <stdint.h>
 

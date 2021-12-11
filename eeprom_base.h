@@ -143,7 +143,7 @@
 // PORTING TO OTHER HARDWARE
 // -------------------------
 //
-//     This class is written instandard C++11 and contains no OS or CPU-specific code.  In order to
+//     This class is written in standard C++11 and contains no OS or CPU-specific code.  In order to
 //     port it to new hardware (to PC, or to an I2C EEPROM, or to a controller with built in flash, or
 //     some other kind of block-oriented storage), it is only neccessary to override two functions:
 //

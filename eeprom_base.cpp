@@ -329,7 +329,7 @@ bool CEEPROM_Base::write(bool force_write)
 
 
 //=========================================================================================================
-// rollback() - Undo the most recent call to write()
+// roll_back() - Undo the most recent call to write()
 //=========================================================================================================
 bool CEEPROM_Base::roll_back()
 {

@@ -13,7 +13,7 @@ void CEEPROM::initialize_new_fields()
       // This is an example for how to initialize "new_field_1" and "new_field_2" that were
       // added to our data structure in DATA_FORMAT #2
          
-      if (m_header.format < 2)
+      if (data.header.format < 2)
       {
           new_field_1 = some_default_value;
           new_field_2 = some_default_value;
@@ -23,7 +23,7 @@ void CEEPROM::initialize_new_fields()
       // And we also initialize "another_new_field" that was added to our data structure 
       // in DATA_FORMAT #3
 
-      if (m_header.format < 3)
+      if (data.header.format < 3)
       {
           another_new_field = some_default_value;
           (etc)

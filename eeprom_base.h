@@ -5,6 +5,7 @@
 //     Portable and fully hardware independent
 //     Data corruption detection via 32-bit CRC
 //     Optional wear-leveling
+//     Optional caching of wear-leveling information for faster read/writes
 //     Optional automatic dirty-checking prior to writing to physical EEPROM
 //     The ability to "roll-back" a write, as though the write never happened
 //     Seamless management of new EEPROM formats

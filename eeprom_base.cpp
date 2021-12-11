@@ -355,7 +355,6 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address, int* p_slot)
     // If we have wear-leveling data cached, perform the cached version of this routine
     if (m_is_cached) goto search_cache;
 
-
     // Loop through every possible slot
     for (slot = 0; slot < m_wl.count; ++slot)
     {

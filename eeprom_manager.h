@@ -42,8 +42,8 @@ public:
 
 public:
 
-    // Constructor.  Optionally specify number of wear-leveling slots and their size
-    CEEPROM(uint16_t slot_count = 1, uint16_t slot_size = 0);
+    // Constructor. 
+    CEEPROM();
 
     // **********************************************************************************
     // *** ABSOLUTELY ANY TIME THE DATA STRUCTURE CHANGES, THIS MUST BE INCREMENTED!! ***

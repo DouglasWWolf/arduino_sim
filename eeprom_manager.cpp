@@ -35,11 +35,17 @@ void CEEPROM::initialize_new_fields()
 
 
 //=========================================================================================================
-// Constructor() - Just calls the base class and sets up the data descriptor
+// Constructor() - Calls the base class, fills in the data descriptor, and other configuration
 //=========================================================================================================
-CEEPROM::CEEPROM(uint16_t slot_count, uint16_t slot_size) : CEEPROM_Base(slot_count, slot_size)
+CEEPROM::CEEPROM() : CEEPROM_Base()
 {
+    // Fill in the data descriptor
     m_data = { &data, sizeof data, DATA_FORMAT, &clean };
+
+    // We're going to do wear leveling
+    m_slot_count = 4;
+    m_slot_size = 0x100;
+
 }
 //=========================================================================================================
 

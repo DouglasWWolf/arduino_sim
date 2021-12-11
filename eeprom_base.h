@@ -21,9 +21,9 @@ public:
     // These are the types of errors that can occur
     enum class error_t : char { OK, IO, CRC, BUG };
 
-    // Constructor.  Optionally specify number of wear-leveling slots and their size
+    // Constructor.
     // *** Derived constructors MUST FILL IN THE m_data DATA DESCRIPTOR *****
-    CEEPROM_Base(uint16_t slot_count = 1, uint16_t slot_size = 0);
+    CEEPROM_Base();
 
     // Call this to disable (or re-enable) dirty checking.  It's enabled by default
     void    enable_dirty_checking(bool flag) { m_is_dirty_checking = flag; }
@@ -92,18 +92,13 @@ protected:
     uint32_t    compute_crc(size_t data_length);
 
     // Returns the header of the most recent edition of our data structure found in EEPROM
-    bool        find_most_recent_edition(header_t*, int*);
+    bool        find_most_recent_edition(header_t*, uint16_t* p_address);
 
-    // Returns the least recently used slot
-    bool        find_least_recent_slot(int*);
-
+    // Returns the EEPROM address of the least recently used slot
+    bool        find_least_recent_address(uint16_t* p_address);
 
     // Converts a 0 thru N slot number into an EEPROM address
     uint16_t    slot_to_header_address(int slot);
-    uint16_t    slot_to_data_address(int slot);
-
-    // Converts an edition number to an EEPROM address
-    uint16_t    edition_to_address(uint32_t edition);
 
     // Reports whether the data-structure in RAM is "dirty" (i.e., requires flushing to EEPROM)
     bool        is_dirty();

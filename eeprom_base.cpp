@@ -11,17 +11,14 @@
 // Adds a constant to a void ptr
 #define add_ptr(x,y) (void*)(((char*)x)+y)
 
-// This is the slot number that means "no slot available"
-#define NO_SLOT -1
-
 //=========================================================================================================
 // Constructor() - Saves wear-leveling setup information and initializes our internal data-descriptor
 //=========================================================================================================
-CEEPROM_Base::CEEPROM_Base(uint16_t slot_count, uint16_t slot_size)
+CEEPROM_Base::CEEPROM_Base()
 {
     // Save our wear-leveling parameters
-    m_slot_count = slot_count;
-    m_slot_size = slot_size;
+    m_slot_count = 1;
+    m_slot_size = 0;
 
     // By default we perform "dirty checking" on the data structure prior to writing it to physical EEPROM
     m_is_dirty_checking = true;
@@ -41,7 +38,7 @@ CEEPROM_Base::CEEPROM_Base(uint16_t slot_count, uint16_t slot_size)
 //=========================================================================================================
 bool CEEPROM_Base::read()
 {
-    int slot;
+    uint16_t address;
 
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
@@ -59,7 +56,7 @@ bool CEEPROM_Base::read()
     const uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
 
     // Fetch the header for the most recent edition of our structure that exists in EEPROM
-    if (!find_most_recent_edition(&m_header, &slot))
+    if (!find_most_recent_edition(&m_header, &address))
     {
         m_error = error_t::IO;
     }
@@ -67,9 +64,6 @@ bool CEEPROM_Base::read()
     // If a valid edition header was found, read in the main data
     if (m_header.magic == MAGIC_NUMBER)
     {
-        // Find the EEPROM address of this edition's data
-        uint16_t address = slot_to_data_address(slot);
-
         // We want to read in every byte of the data structure in EEPROM
         uint16_t read_length = eeprom_data_only_length;
 
@@ -80,7 +74,7 @@ bool CEEPROM_Base::read()
         void* ram_data = add_ptr(m_data.ptr, sizeof header_t);
        
         // Read the data structure from EEPROM into RAM
-        if (!read_physical_block(ram_data,  address, read_length))
+        if (!read_physical_block(ram_data,  address + sizeof header_t, read_length))
         {
             m_error = error_t::IO;
         }
@@ -109,14 +103,15 @@ bool CEEPROM_Base::read()
 // find_most_recent_edition() - Searches every wear-leveling slot in EEPROM and returns the header from
 //                              the most recently written edition of our data
 //
+// On Exit: *p_address is valid only if *p_result contains a valid header
+//
 // Returns: true on success, false if an I/O error occurs
 //=========================================================================================================
-bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, int* p_slot)
+bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, uint16_t* p_address)
 {
     header_t  header;
 
-    // If we don't find any edition of our data structure in EEPROM, we'll return NO_SLOT and an empty header
-    *p_slot = NO_SLOT;
+    // If we don't find any edition of our data structure in EEPROM, we'll return an empty header
     memset(p_result, 0, sizeof header_t);
 
     // Loop through every possible slot
@@ -132,7 +127,7 @@ bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, int* p_slot)
         if (header.magic == MAGIC_NUMBER && header.edition > p_result->edition)
         {
             *p_result = header;
-            *p_slot = slot;
+            *p_address = slot_to_header_address(slot);
         }
     }
 
@@ -149,15 +144,15 @@ bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, int* p_slot)
 //
 // Returns: true on success, false if an I/O error occurs
 //=========================================================================================================
-bool CEEPROM_Base::find_least_recent_slot(int* p_slot)
+bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address)
 {
     header_t  header;
     uint32_t  oldest_edition = 0xFFFFFFFF;
 
-    // If there's only one slot, return it
+    // If there's only one slot, its address is zero
     if (m_slot_count == 1)
     {
-        *p_slot = 0;
+        *p_address = 0;
         return true;
     }
 
@@ -173,7 +168,7 @@ bool CEEPROM_Base::find_least_recent_slot(int* p_slot)
         // If this slot is empty, hand the slot number to the caller
         if (header.magic != MAGIC_NUMBER)
         {
-            *p_slot = slot;
+            *p_address = address;
             return true;
         }
 
@@ -181,7 +176,7 @@ bool CEEPROM_Base::find_least_recent_slot(int* p_slot)
         if (header.edition < oldest_edition)
         {
             oldest_edition = header.edition;
-            *p_slot = slot;
+            *p_address = address;
         }
 
     }
@@ -199,6 +194,8 @@ bool CEEPROM_Base::find_least_recent_slot(int* p_slot)
 //=========================================================================================================
 bool CEEPROM_Base::write(bool force_write)
 {
+    uint16_t address;
+
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
 
@@ -220,7 +217,11 @@ bool CEEPROM_Base::write(bool force_write)
     m_header.crc = compute_crc(m_data.length);
 
     // Find the EEPROM address where this edition should be written
-    uint16_t address = edition_to_address(m_header.edition);
+    if (!find_least_recent_address(&address))
+    {
+         m_error = error_t::IO;
+         return false;
+    }
 
     // Write the header and data structure to EEPROM
     if (!write_physical_block(m_data.ptr, address, m_data.length))
@@ -243,7 +244,7 @@ bool CEEPROM_Base::write(bool force_write)
 //=========================================================================================================
 bool CEEPROM_Base::roll_back()
 {
-    int slot;
+    uint16_t address;
 
     // Presume for a moment that this routine is going to succeed
     m_error = error_t::OK;
@@ -252,7 +253,7 @@ bool CEEPROM_Base::roll_back()
     if (bug_check()) return false;
 
     // Fetch the header for the most recent edition of our structure that exists in EEPROM
-    if (!find_most_recent_edition(&m_header, &slot))
+    if (!find_most_recent_edition(&m_header, &address))
     {
         m_error = error_t::IO;
         return false;
@@ -261,9 +262,6 @@ bool CEEPROM_Base::roll_back()
     // If we found an edition that can be rolled back...
     if (m_header.magic == MAGIC_NUMBER)
     {
-        // Find the EEPROM address of this edition
-        uint16_t address = slot_to_header_address(slot);
-
         // Wipe it out in both RAM and EEPROM
         memset(&m_header, 0xFF, sizeof m_header);
         write_physical_block(&m_header, address, sizeof m_header);
@@ -345,22 +343,6 @@ uint32_t CEEPROM_Base::compute_crc(size_t data_length)
 
 
 //=========================================================================================================
-// edition_to_address() - Converts an edition number to an EEPROM address
-//=========================================================================================================
-uint16_t CEEPROM_Base::edition_to_address(uint32_t edition)
-{
-    // Convert the edition number into a slot number
-    int slot = (edition - 1) % m_slot_count;
-
-    // And return the EEPROM address of this slot
-    return slot_to_header_address(slot);
-}
-//=========================================================================================================
-
-
-
-
-//=========================================================================================================
 // slot_to_header_address() - Converts a wear_leveling slot number to an EEPROM address
 //=========================================================================================================
 uint16_t CEEPROM_Base::slot_to_header_address(int slot)
@@ -370,11 +352,6 @@ uint16_t CEEPROM_Base::slot_to_header_address(int slot)
 
     // Return the EEPROM address of this slot
     return slot * m_slot_size;
-}
-
-uint16_t CEEPROM_Base::slot_to_data_address(int slot)
-{
-    return slot_to_header_address(slot) + sizeof header_t;
 }
 //=========================================================================================================
 

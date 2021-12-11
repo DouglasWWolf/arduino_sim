@@ -12,36 +12,10 @@
 
 InterruptThread IntThread;
 
-CEEPROM NVS(5, 256);
+CEEPROM NVS;
 
 CEEPROM::data_t& ee = NVS.data;
 
-
-template <class T> class noconst
-{
-    T& operator()(const T& var)
-    {
-        return *(T*)&var;
-    }
-};
-
-class uc_int
-{
-public:
-    int& operator[](const int& var)
-    {
-        return *(int*)&var;
-    }
-};
-
-#define nonconst(T,v) *(T*)&v
-
-
-struct data_t
-{
-    const int flag1 = 0;
-    const int flag2 = 0;
-} data;
 
 int main()
 {
@@ -59,28 +33,11 @@ int main()
     NVS.write();
 #endif
 
+    NVS.read();
+    printf("%d\n", ee.run_mode);
 
 
-    const int ax = 4;
-
-    //noconst<int>(ax) = 42;
-    nonconst(int, ax) = 42;
-    printf("ax = %d\n", ax);
-    *(int*)&ax = 44;
-    printf("ax = %d\n", ax);
-    *const_cast<int*>(&data.flag1) = 13;
-    printf("ax = %d\n", data.flag1);
-    
-    *const_cast<int*>(&ax) = 99;
-    *(int*)&data.flag1 = 93;
-    printf("ax = %d\n", data.flag1);
     exit(1);
-
-
-    enum class mode_t {FOO, BAR};
-    enum xmod_t {FOO, BAR};
-
-    mode_t x = mode_t::FOO;
 
     Knob.init(CHANNEL_A, CHANNEL_B, CLICK_PIN);
     IntThread.spawn();

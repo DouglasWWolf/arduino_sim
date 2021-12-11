@@ -14,7 +14,6 @@
 #define _EEPROM_BASE_H_
 #include <stdint.h>
 
-
 class CEEPROM_Base
 {
 public:
@@ -55,9 +54,11 @@ protected:
     virtual bool write_physical_block(void* src,  uint16_t address, uint16_t length) = 0;
     virtual bool read_physical_block (void* dest, uint16_t address, uint16_t length) = 0;
 
-    //-----------------------------------------------------
-    // The order of these fields must not be disturbed!
-    //-----------------------------------------------------
+    //-----------------------------------------------------------------------
+    // The order of these fields must not be disturbed!  
+    //
+    // A const header_t MUST BE THE VERY FIRST FIELD IN YOUR DATA STRUCTURE
+    //-----------------------------------------------------------------------
     struct header_t
     {
         uint32_t    crc;
@@ -65,8 +66,8 @@ protected:
         uint32_t    magic;
         uint16_t    data_len;
         uint16_t    format;
-    } m_header;
-    //------------------------------------------------------
+    };
+    //-----------------------------------------------------------------------
 
     // Data descriptor - describes the user's data structure
     struct { void* ptr; uint16_t length; uint16_t format; void* clean_copy; } m_data;
@@ -91,10 +92,15 @@ protected:
     uint32_t    compute_crc(size_t data_length);
 
     // Returns the header of the most recent edition of our data structure found in EEPROM
-    bool        find_most_recent_edition(header_t*);
+    bool        find_most_recent_edition(header_t*, int*);
+
+    // Returns the least recently used slot
+    bool        find_least_recent_slot(int*);
+
 
     // Converts a 0 thru N slot number into an EEPROM address
-    uint16_t    slot_to_address(int slot);
+    uint16_t    slot_to_header_address(int slot);
+    uint16_t    slot_to_data_address(int slot);
 
     // Converts an edition number to an EEPROM address
     uint16_t    edition_to_address(uint32_t edition);

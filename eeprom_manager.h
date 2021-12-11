@@ -50,13 +50,17 @@ public:
     // **********************************************************************************
     enum {DATA_FORMAT = 1};
 
+
     // **********************************************************************************
+    // ***    >>> The first field in this struct MUST be a const header_t!!! <<<      ***
+    // ***                                                                            ***
     // *** You can add fields to this, but must never delete an existing field or     ***
     // *** change its size. If you add a field, increment DATA_FORMAT above!          ***
     // **********************************************************************************
     struct data_t
     {
-        uint8_t run_mode = 0;
+        const header_t  header;
+        uint8_t         run_mode;
     } data, clean;
 
 protected:

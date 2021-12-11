@@ -380,7 +380,6 @@ bool CEEPROM_Base::find_least_recent_address(uint16_t* p_address, int* p_slot)
             *p_slot    = slot;
             *p_address = address;
         }
-
     }
 
     // Tell the caller all is well

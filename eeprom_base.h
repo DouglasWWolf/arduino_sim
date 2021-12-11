@@ -58,15 +58,21 @@
 // 
 //      If you can't afford the memory for automatic dirty checking, your derived class can set the "m_is_dirty" flag
 //      every time your application updates a field in your data structure.  The best way to do this is to declare your
-//      data structure as "const" (so the rest of your code can't accidentally write to it), and to write a set_<field_name>
-//      routine for each field in the data structure.  For example, if you have an "int" called "flag1" in your data
-//      structure, your "set" routine would look like this:
+//      data structure as "const" (so the rest of your code can't accidentally write to it), and for each field in 
+//      your data structure, write a set_<field_name> routine that calls supplied "set()" template function.
+//   
+//      For example, if your data structure contains the field "int flag1," your "set_flag1()" routine would
+//      look like this:
+// 
 //              void set_flag1(int value)
 //              {
-//                  *(int*)&data.flag1 = value;
-//                  m_is_dirty = true
+//                  set(data.flag1, value);
 //              }
 // 
+//       That routine can conveniently be expressed in one line:
+//  
+//             void set_flag1(int value) { set(data.flag1, value); }
+//  
 //      To turn off dirty-checking entirely, set "m_is_dirty_checking" to false in your constructor.
 //
 // -------------
@@ -154,6 +160,7 @@
 //   Date    Vers  Who  What
 // --------------------------------------------------------------------------------------------------------
 // 11-Dec-21   1   DWW  Initial release
+// 12-Dec-21   2   DWW  Added "set()" template function
 //=========================================================================================================
 #include <stdint.h>
 
@@ -262,6 +269,14 @@ protected:
 
     // A convenience constant
     const int header_size = sizeof(header_t);
+
+    // A convenient template class for setting data values when data is declared "const"
+    template < class T> void set(const T& dest, T value)
+    {
+        *(T*)&dest = value;
+        m_is_dirty = true;
+    }
+
 
 private:
 

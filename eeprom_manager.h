@@ -57,9 +57,10 @@ public:
     // **********************************************************************************
     struct data_t
     {
-        const header_t  header = {0};
+        const header_t  header = { 0 };
         uint8_t         run_mode;
     } data, clean;
+        
 
 protected:
     
@@ -76,7 +77,7 @@ protected:
     // Since we're doing wear leveling, we need to define these.  We're going to use
     // the optional journal caching, so we declare a cache buffer
     enum { WEAR_LEVELING_SLOTS = 4 };
-    enum { WEAR_LEVELING_SIZE  = 0x100};
+    enum { WEAR_LEVELING_SIZE  = 0x400};
     uint32_t m_cache_buffer[WEAR_LEVELING_SLOTS];
 };
 

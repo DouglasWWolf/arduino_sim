@@ -14,11 +14,51 @@ InterruptThread IntThread;
 
 CEEPROM NVS;
 
-CEEPROM::data_t& ee = NVS.data;
+const CEEPROM::data_t& ee = NVS.data;
+
+struct aa_t
+{
+    uint16_t x;
+    uint8_t  y;
+    uint32_t z;
+};
+
+
+class CTEST
+{
+public:
+
+    void    set_x(uint16_t value) { set(data.x, value); }
+    void    set_y(uint8_t value)  { set(data.y, value); }
+    void    set_z(uint32_t value) { set(data.z, value); }
+
+    const aa_t data;
+
+
+
+protected:
+    bool    m_flag;
+
+    template < class T>
+    void set(const T& dest, T value)
+    {
+        *(T*)&dest = value;
+        m_flag = true;
+    }
+
+
+} TEST;
+
 
 
 int main()
 {
+    TEST.set_x(3);
+    TEST.set_z(41);
+
+    printf("%i  %i\n", TEST.data.x, TEST.data.z);
+    exit(1);
+
 #if 0
     NVS.destroy();
     exit(1);

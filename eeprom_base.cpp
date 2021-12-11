@@ -103,6 +103,154 @@ bool CEEPROM_Base::read()
 
 
 
+
+//=========================================================================================================
+// write() - If anything has changed in the data, writes the data (and a new header) to EEPROM
+//=========================================================================================================
+bool CEEPROM_Base::write(bool force_write)
+{
+    uint16_t address;
+    int      slot;
+
+    // Presume for a moment that this routine is going to succeed
+    m_error = error_t::OK;
+
+    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
+    if (bug_check()) return false;
+
+    // If we're not forcing the write, and the data isn't "dirty", don't commit it to EEPROM
+    if (!force_write && !is_dirty()) return true;
+
+    // Fill in all of the header fields
+    m_header.magic = MAGIC_NUMBER;
+    m_header.data_len = m_data.length;
+    m_header.format = m_data.format;
+
+    // We are about to write a new edition of the data to EEPROM
+    ++m_header.edition;
+
+    // Fill in the CRC of the header and data 
+    m_header.crc = compute_crc(m_data.length);
+
+    // Find the EEPROM address where this edition should be written
+    if (!find_least_recent_address(&address, &slot))
+    {
+        m_error = error_t::IO;
+        return false;
+    }
+
+    // If we're caching, cache this entry
+    if (m_wl.cache) m_wl.cache[slot] = m_header.edition;
+
+    // Write the header and data structure to EEPROM
+    if (!write_physical_block(m_data.ptr, address, m_data.length))
+    {
+        m_error = error_t::IO;
+    }
+
+    // The data structure in RAM now matches the data structure in EEPROM
+    mark_data_as_clean();
+
+    // If we get here, the write operation was a success
+    return (m_error == error_t::OK);
+}
+//=========================================================================================================
+
+
+
+//=========================================================================================================
+// roll_back() - Undo the most recent call to write()
+//=========================================================================================================
+bool CEEPROM_Base::roll_back()
+{
+    uint16_t address;
+    int      slot;
+
+    // Presume for a moment that this routine is going to succeed
+    m_error = error_t::OK;
+
+    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
+    if (bug_check()) return false;
+
+    // Fetch the header for the most recent edition of our structure that exists in EEPROM
+    if (!find_most_recent_edition(&m_header, &address, &slot))
+    {
+        m_error = error_t::IO;
+        return false;
+    }
+
+    // If we found an edition that can be rolled back, destroy it
+    if (m_header.magic == MAGIC_NUMBER) destroy_slot(slot);
+
+    // And read in the previous edition
+    return read();
+}
+//=========================================================================================================
+
+
+
+
+//=========================================================================================================
+// destroy() - Destroys the header structure in EEPROM and in RAM
+//=========================================================================================================
+bool CEEPROM_Base::destroy()
+{
+    // Presume for the moment that this routine is going to succeed
+    m_error = error_t::OK;
+
+    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
+    if (bug_check()) return false;
+
+    // Ensure the wear-leveling cache is built if it's configured
+    build_wl_cache();
+
+    // Destroy every slot in the EEPROM
+    for (int slot = 0; slot < m_wl.count; ++slot) destroy_slot(slot);
+
+    // EEPROM has been destroyed.  Set up the appropriate structures in RAM
+    memset(m_data.ptr, 0, m_data.length);
+    initialize_new_fields();
+
+    // The data structure in RAM now matches the data structure in EEPROM
+    mark_data_as_clean();
+
+    // Tell the caller whether this worked
+    return (m_error == error_t::OK);
+}
+//=========================================================================================================
+
+
+
+//=========================================================================================================
+// destroy_slot() - Destroys the header in the specified EEPROM slot
+//=========================================================================================================
+bool CEEPROM_Base::destroy_slot(int slot)
+{
+    header_t destroyed_header;
+
+    // Create a "destroyed" header
+    memset(&destroyed_header, 0xFF, sizeof header_t);
+
+    // Compute the EEPROM address of this slot
+    uint16_t address = slot_to_header_address(slot);
+
+    // If we're caching, destroy this entry in the cache
+    if (m_wl.cache) m_wl.cache[slot] = EMPTY_SLOT;
+
+    // Destroy the header in this slot
+    if (!write_physical_block(&destroyed_header, address, sizeof header_t))
+    {
+        m_error = error_t::IO;
+    }
+
+    // Tell the caller whether everything is OK
+    return (m_error == error_t::OK);
+}
+//=========================================================================================================
+
+
+
+
 //=========================================================================================================
 // find_most_recent_edition() - Searches every wear-leveling slot in EEPROM and returns the header from
 //                              the most recently written edition of our data
@@ -271,152 +419,6 @@ search_cache:
 }
 //=========================================================================================================
 
-
-
-
-//=========================================================================================================
-// write() - If anything has changed in the data, writes the data (and a new header) to EEPROM
-//=========================================================================================================
-bool CEEPROM_Base::write(bool force_write)
-{
-    uint16_t address;
-    int      slot;
-
-    // Presume for a moment that this routine is going to succeed
-    m_error = error_t::OK;
-
-    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (bug_check()) return false;
-
-    // If we're not forcing the write, and the data isn't "dirty", don't commit it to EEPROM
-    if (!force_write && !is_dirty()) return true;
-
-    // Fill in all of the header fields
-    m_header.magic    = MAGIC_NUMBER;
-    m_header.data_len = m_data.length;
-    m_header.format   = m_data.format;
-    
-    // We are about to write a new edition of the data to EEPROM
-    ++m_header.edition;
-
-    // Fill in the CRC of the header and data 
-    m_header.crc = compute_crc(m_data.length);
-
-    // Find the EEPROM address where this edition should be written
-    if (!find_least_recent_address(&address, &slot))
-    {
-         m_error = error_t::IO;
-         return false;
-    }
-
-    // If we're caching, cache this entry
-    if (m_wl.cache) m_wl.cache[slot] = m_header.edition;
-
-    // Write the header and data structure to EEPROM
-    if (!write_physical_block(m_data.ptr, address, m_data.length))
-    {
-        m_error = error_t::IO;
-    }
-
-    // The data structure in RAM now matches the data structure in EEPROM
-    mark_data_as_clean();
-
-    // If we get here, the write operation was a success
-    return (m_error == error_t::OK);
-}
-//=========================================================================================================
-
-
-
-//=========================================================================================================
-// roll_back() - Undo the most recent call to write()
-//=========================================================================================================
-bool CEEPROM_Base::roll_back()
-{
-    uint16_t address;
-    int      slot;
-
-    // Presume for a moment that this routine is going to succeed
-    m_error = error_t::OK;
-
-    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (bug_check()) return false;
-
-    // Fetch the header for the most recent edition of our structure that exists in EEPROM
-    if (!find_most_recent_edition(&m_header, &address, &slot))
-    {
-        m_error = error_t::IO;
-        return false;
-    }
-
-    // If we found an edition that can be rolled back, destroy it
-    if (m_header.magic == MAGIC_NUMBER) destroy_slot(slot);
-
-    // And read in the previous edition
-    return read();
-}
-//=========================================================================================================
-
-
-
-
-//=========================================================================================================
-// destroy() - Destroys the header structure in EEPROM and in RAM
-//=========================================================================================================
-bool CEEPROM_Base::destroy()
-{
-    // Presume for the moment that this routine is going to succeed
-    m_error = error_t::OK;
-
-    // Ensure that the wear-leveling slots are large enough to hold our data structure!!
-    if (bug_check()) return false;
-
-    // Ensure the wear-leveling cache is built if it's configured
-    build_wl_cache();
-
-    // Destroy every slot in the EEPROM
-    for (int slot = 0; slot < m_wl.count; ++slot) destroy_slot(slot);
-
-    // EEPROM has been destroyed.  Set up the appropriate structures in RAM
-    memset(m_data.ptr, 0, m_data.length);
-    initialize_new_fields();
-
-    // The data structure in RAM now matches the data structure in EEPROM
-    mark_data_as_clean();
-
-    // Tell the caller whether this worked
-    return (m_error == error_t::OK);
-}
-//=========================================================================================================
-
-
-
-//=========================================================================================================
-// destroy_slot() - Destroys the header in the specified EEPROM slot
-//=========================================================================================================
-bool CEEPROM_Base::destroy_slot(int slot)
-{
-    header_t destroyed_header;
-
-    // Create a "destroyed" header
-    memset(&destroyed_header, 0xFF, sizeof header_t);
-
-    // Compute the EEPROM address of this slot
-    uint16_t address = slot_to_header_address(slot);
-
-    // If we're caching, destroy this entry in the cache
-    if (m_wl.cache) m_wl.cache[slot] = EMPTY_SLOT;
-
-    // Destroy the header in this slot
-    if (!write_physical_block(&destroyed_header, address, sizeof header_t))
-    {
-        m_error = error_t::IO;
-    }
-
-    // Tell the caller whether everything is OK
-    return (m_error == error_t::OK);
-}
-//=========================================================================================================
 
 
 

@@ -69,8 +69,8 @@ bool CEEPROM_Base::read()
     if (m_header.magic == MAGIC_NUMBER)
     {
         // This is the length of the data structure sans header in both EEPROM and RAM
-        const uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
-        const uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
+        uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
+        uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
 
         // We want to read in every byte of the data structure (but not the header) in EEPROM
         uint16_t read_length = eeprom_data_only_length;
@@ -488,9 +488,6 @@ bool CEEPROM_Base::is_dirty()
     // If we're not doing "dirty checking", then we always assume the data is dirty
     if (!m_is_dirty_checking) return true;
     
-    unsigned char* ram = ((unsigned char*)m_data.ptr) + sizeof header_t;
-    unsigned char* cln = ((unsigned char*)m_data.clean_copy) + sizeof header_t;
-
     // If we're doing automatic "dirty checking", see if the data differs from the clean copy
     if (m_data.clean_copy && memcmp(m_data.ptr, m_data.clean_copy, m_data.length) != 0) return true;
 

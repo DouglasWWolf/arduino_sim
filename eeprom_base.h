@@ -40,7 +40,7 @@ public:
     // Wipes out the data structures in EEPROM
     bool    destroy();
 
-    // Fetch the error code after a read, save, or destroy operation
+    // Fetch the error code after a failed read, write, roll_back, or destroy operation
     error_t get_error() { return m_error; }
 
 

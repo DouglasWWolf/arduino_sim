@@ -113,7 +113,7 @@
 //      Here is an example of an "initialize_new_fields()" virtual function to manage the upgrading
 //      of older data structures (existing in EEPROMS in the field) to the latest data structure:
 // 
-    /*
+/*
 
     void DerivedClass::initialize_new_fields()
     {

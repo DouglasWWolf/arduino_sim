@@ -43,6 +43,9 @@ CEEPROM::CEEPROM() : CEEPROM_Base()
 
     // Fill in the wear-leveling configuration, including journal caching
     m_wl = { WEAR_LEVELING_SLOTS, WEAR_LEVELING_SIZE, m_cache_buffer };
+
+    // Turn on dirty-checking
+    m_is_dirty_checking = true;
 }
 //=========================================================================================================
 
@@ -58,7 +61,7 @@ bool CEEPROM::write_physical_block(void* src, uint16_t address, uint16_t length)
     // Use the AVR API to write the block from RAM into EEPROM
     eeprom_update_block(src, (void*)(address), length);
 
-    // Tell the caller that all is well
+    // The AVR routines don't return a status, so we have to just assume they worked
     return true;
 };
 //=========================================================================================================
@@ -73,7 +76,7 @@ bool CEEPROM::read_physical_block(void* dest, uint16_t address, uint16_t length)
     // Use the AVR API to read the block from EEPROM into RAM
     eeprom_read_block(dest, (void*)(address), length);
 
-    // Tell the caller that all is well
+    // The AVR routines don't return a status, so we have to just assume they worked
     return true;
 }
 //=========================================================================================================

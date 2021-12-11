@@ -59,7 +59,7 @@ public:
     // **********************************************************************************
     struct data_t
     {
-        const header_t  header;
+        const header_t  header = {0};
         uint8_t         run_mode;
     } data, clean;
 

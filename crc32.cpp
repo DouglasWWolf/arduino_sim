@@ -44,7 +44,7 @@ static const uint32_t crc_table[256] =
 //=========================================================================================================
 // crc32 - Computes a 32-bit CRC
 //=========================================================================================================
-uint32_t crc32(void* buf, size_t len, uint32_t partial_crc)
+uint32_t crc32(void* buf, uint32_t len, uint32_t partial_crc)
 {
     // Fill in the starting value of the CRC 
     uint32_t crc = partial_crc;

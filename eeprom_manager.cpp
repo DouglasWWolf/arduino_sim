@@ -40,7 +40,7 @@ void CEEPROM::initialize_new_fields()
 CEEPROM::CEEPROM() : CEEPROM_Base()
 {
     // Fill in the data descriptor, including automatic dirty-checking
-    m_data = { &data, sizeof data, DATA_FORMAT, &clean };
+    m_data = { &data, sizeof(data), DATA_FORMAT, &clean };
 
     // Fill in the wear-leveling configuration, including journal caching
     m_wl = { WEAR_LEVELING_SLOTS, WEAR_LEVELING_SIZE, m_cache_buffer };

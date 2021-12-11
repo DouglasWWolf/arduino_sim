@@ -243,6 +243,9 @@ protected:
     // Reads a header from EEPROM into RAM
     bool        read_header(header_t* p_result, uint16_t address);
 
+    // A convenience constant
+    const int header_size = sizeof(header_t);
+
 private:
 
     // This will be true if we have wear-leveling data cached

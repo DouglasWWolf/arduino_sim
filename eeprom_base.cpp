@@ -14,6 +14,7 @@
 // This is how we denote an empty slot in the cache
 #define EMPTY_SLOT 0xFFFFFFFF
 
+
 //=========================================================================================================
 // Constructor() - Saves wear-leveling setup information and initializes our internal data-descriptor
 //=========================================================================================================
@@ -69,8 +70,8 @@ bool CEEPROM_Base::read()
     if (m_header.magic == MAGIC_NUMBER)
     {
         // This is the length of the data structure sans header in both EEPROM and RAM
-        uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
-        uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
+        uint16_t eeprom_data_only_length = m_header.data_len - header_size;
+        uint16_t    ram_data_only_length = m_data.length     - header_size;
 
         // We want to read in every byte of the data structure (but not the header) in EEPROM
         uint16_t read_length = eeprom_data_only_length;
@@ -79,10 +80,10 @@ bool CEEPROM_Base::read()
         if (read_length > ram_data_only_length) read_length = ram_data_only_length;
 
         // This is where our data structure starts in RAM
-        void* ram_data = add_ptr(m_data.ptr, sizeof header_t);
+        void* ram_data = add_ptr(m_data.ptr, header_size);
        
         // Read the data structure from EEPROM into RAM
-        if (!read_physical_block(ram_data,  address + sizeof header_t, read_length))
+        if (!read_physical_block(ram_data,  address + header_size, read_length))
         {
             m_error = error_t::IO;
         }
@@ -233,7 +234,7 @@ bool CEEPROM_Base::destroy_slot(int slot)
     build_wl_cache();
 
     // Create a "destroyed" header
-    memset(&destroyed_header, 0xFF, sizeof header_t);
+    memset(&destroyed_header, 0xFF, header_size);
 
     // Compute the EEPROM address of this slot
     uint16_t address = slot_to_header_address(slot);
@@ -242,7 +243,7 @@ bool CEEPROM_Base::destroy_slot(int slot)
     if (m_wl.cache) m_wl.cache[slot] = EMPTY_SLOT;
 
     // Destroy the header in this slot
-    if (!write_physical_block(&destroyed_header, address, sizeof header_t))
+    if (!write_physical_block(&destroyed_header, address, header_size))
     {
         m_error = error_t::IO;
     }
@@ -272,7 +273,7 @@ bool CEEPROM_Base::find_most_recent_edition(header_t* p_result, uint16_t* p_addr
     if (p_slot == nullptr) p_slot = &dummy;
 
     // If we don't find any edition of our data structure in EEPROM, we'll return an empty header
-    memset(p_result, 0, sizeof header_t);
+    memset(p_result, 0, header_size);
 
     // If we have a wear-leveling cache configured, make sure it's built
     if (!build_wl_cache()) return false;
@@ -558,7 +559,7 @@ bool CEEPROM_Base::build_wl_cache()
 //=========================================================================================================
 bool CEEPROM_Base::read_header(header_t* p_result, uint16_t address)
 {
-    if (!read_physical_block(p_result, address, sizeof header_t))
+    if (!read_physical_block(p_result, address, header_size))
     {
         m_error = error_t::IO;
         return false;
@@ -566,4 +567,3 @@ bool CEEPROM_Base::read_header(header_t* p_result, uint16_t address)
     return true;
 }
 //=========================================================================================================
-

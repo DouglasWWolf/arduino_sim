@@ -2,8 +2,6 @@
 #define _EEPROM_MANAGER_H_
 #include "eeprom_base.h"
 
-
-
 class CEEPROM : public CEEPROM_Base
 {
 public:

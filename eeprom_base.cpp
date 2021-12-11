@@ -11,6 +11,7 @@
 // Adds a constant to a void ptr
 #define add_ptr(x,y) (void*)(((char*)x)+y)
 
+// This is how we denote an empty slot in the cache
 #define EMPTY_SLOT 0xFFFFFFFF
 
 //=========================================================================================================

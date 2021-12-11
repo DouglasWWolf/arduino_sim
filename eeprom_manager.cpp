@@ -35,7 +35,7 @@ void CEEPROM::initialize_new_fields()
 
 
 //=========================================================================================================
-// Constructor() - Just calls the base class and clears our data structure
+// Constructor() - Just calls the base class
 //=========================================================================================================
 CEEPROM::CEEPROM(uint16_t slot_count, uint16_t slot_size) : CEEPROM_Base(slot_count, slot_size) {}
 //=========================================================================================================

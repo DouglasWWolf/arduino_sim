@@ -85,13 +85,6 @@ bool CEEPROM_Base::read()
         }
     }
    
-    // If we couldn't find a valid edition in EEPROM, clear the header and data fields to zeros
-    else
-    {
-        memset(&m_header, 0, sizeof m_header);
-        memset(data.ptr, 0, data.length);
-    }
-
     // And we need to initialize any new fields that may be present in the data structure
     initialize_new_fields();
 

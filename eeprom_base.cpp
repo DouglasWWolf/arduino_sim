@@ -2,6 +2,8 @@
 #include "eeprom_base.h"
 #include "crc32.h"
 
+//#include <stdio.h>  /// <<<<------------- DELETE THIS!!
+
 // Our magic-number that indicates our structure exists.  In ASCII "AADW" ;-)
 #define MAGIC_NUMBER (uint32_t)0x41414457
 
@@ -72,7 +74,7 @@ bool CEEPROM_Base::read()
         const uint16_t eeprom_data_only_length = m_header.data_len - sizeof header_t;
         const uint16_t    ram_data_only_length = m_data.length     - sizeof header_t;
 
-        // We want to read in every byte of the data structure in EEPROM
+        // We want to read in every byte of the data structure (but not the header) in EEPROM
         uint16_t read_length = eeprom_data_only_length;
 
         // Make sure it doesn't overflow our data structure in RAM!
@@ -90,7 +92,7 @@ bool CEEPROM_Base::read()
         // If there are no errors so far, check to see if the data we read was corrupted
         if (m_error == error_t::OK && m_header.crc != compute_crc(m_header.data_len))
         {
-             m_error = error_t::CRC;
+            m_error = error_t::CRC;
         }
     }
    
@@ -204,7 +206,6 @@ bool CEEPROM_Base::destroy()
 
     // Ensure that the wear-leveling slots are large enough to hold our data structure!!
     if (bug_check()) return false;
-
 
     // Destroy every slot in the EEPROM
     for (int slot = 0; slot < m_wl.count; ++slot) destroy_slot(slot);
@@ -490,6 +491,9 @@ bool CEEPROM_Base::is_dirty()
     // If we're not doing "dirty checking", then we always assume the data is dirty
     if (!m_is_dirty_checking) return true;
     
+    unsigned char* ram = ((unsigned char*)m_data.ptr) + sizeof header_t;
+    unsigned char* cln = ((unsigned char*)m_data.clean_copy) + sizeof header_t;
+
     // If we're doing automatic "dirty checking", see if the data differs from the clean copy
     if (m_data.clean_copy && memcmp(m_data.ptr, m_data.clean_copy, m_data.length) != 0) return true;
 

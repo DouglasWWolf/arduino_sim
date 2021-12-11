@@ -21,16 +21,23 @@ int main()
 {
 #if 0
     NVS.destroy();
+    exit(1);
+#endif
+
+#if 1
+    NVS.destroy();
     NVS.read();
 
-    ee.run_mode = 11;
-    NVS.write();
+    for (int i = 0; i < 6; ++i)
+    {
+        int hex = i + 1;
+        ee.run_mode = (hex << 4) | hex;
+        NVS.write();
+    }
 
-    ee.run_mode = 22;
-    NVS.write();
+    exit(0);
+#
 
-    ee.run_mode = 23;
-    NVS.write();
 #endif
 
     NVS.read();

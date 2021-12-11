@@ -48,6 +48,9 @@ CEEPROM::CEEPROM() : CEEPROM_Base()
 //=========================================================================================================
 
 
+
+
+
 //=========================================================================================================
 // write_physical_block() - Writes a block of data to the specified EEPROM address
 //=========================================================================================================
@@ -55,7 +58,7 @@ bool CEEPROM::write_physical_block(void* src, uint16_t address, uint16_t length)
 {
     // Use the AVR API to write the block from RAM into EEPROM
     eeprom_update_block(src, (void*)(address), length);
-    
+
     // Tell the caller that all is well
     return true;
 };

@@ -76,7 +76,7 @@ protected:
     bool read_physical_block(void* dest, uint16_t address, uint16_t length);
 
     // Since we're doing wear leveling, we need to define these.  We're going to use
-    // the optional "caching" option for speed
+    // the optional "
     enum { WEAR_LEVELING_SLOTS = 4 };
     enum { WEAR_LEVELING_SIZE  = 0x100};
     uint32_t m_cache_buffer[WEAR_LEVELING_SLOTS];

@@ -29,7 +29,8 @@
 // 
 //      "Dirty Checking" is an optional feature that keeps track of whether the data in your data structure has
 //      changed since the last time it was read from or written to EEPROM.  With dirty-checking enabled, during a
-//      write operation, the data will only be committed to physical EEPROM if the data structure is dirty.
+//      write operation, the data will only be committed to physical EEPROM if the data structure is dirty (i.e., if
+//      the data in RAM is different than the data in the physical EEPROM)
 // 
 //      You can turn on automatic dirty-checking by filling in "m_data.clean_copy" with a pointer to a buffer that
 //      is large enough to hold a copy of your entire data structure.
@@ -152,8 +153,8 @@ public:
 protected:
 
         
-    // Pure virtual function to initialize new fields when the dataformat changes
-    virtual void initialize_new_fields() = 0;
+    // Virtual function to initialize new fields when the dataformat changes
+    virtual void initialize_new_fields() {};
 
     // Pure virtual functions to perform physical I/O to the EEPROM
     virtual bool write_physical_block(void* src,  uint16_t address, uint16_t length) = 0;

@@ -1,3 +1,6 @@
+#ifndef _EEPROM_BASE_H_
+#define _EEPROM_BASE_H_
+
 //=========================================================================================================
 // CEEPROM_Base - Base class for a full featured EEPROM manager
 // 
@@ -113,11 +116,22 @@
     }
 */
 
-// 
-// 
+//
+// -------------------------
+// PORTING TO OTHER HARDWARE
+// -------------------------
+//
+//     This class is written instandard C++11 and contains no OS or CPU-specific code.  In order to
+//     port it to new hardware (to PC, or to an I2C EEPROM, or to a controller with built in flash, or
+//     some other kind of block-oriented storage), it is only neccessary to override two functions:
+//
+//         // Used to write a block of data to EEPROM 
+//         virtual bool write_physical_block(void* src,  uint16_t address, uint16_t length);
+//
+//         // Used to read a block of data from EEPROM
+//         virtual bool read_physical_block(void* dest, uint16_t address, uint16_t length);
+//
 //=========================================================================================================
-#ifndef _EEPROM_BASE_H_
-#define _EEPROM_BASE_H_
 #include <stdint.h>
 
 class CEEPROM_Base
@@ -153,8 +167,8 @@ public:
 protected:
 
         
-    // Virtual function to initialize new fields when the dataformat changes
-    virtual void initialize_new_fields() {};
+    // Pure virtual function to initialize new fields when the dataformat changes
+    virtual void initialize_new_fields() = 0;
 
     // Pure virtual functions to perform physical I/O to the EEPROM
     virtual bool write_physical_block(void* src,  uint16_t address, uint16_t length) = 0;

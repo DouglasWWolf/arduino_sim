@@ -16,8 +16,8 @@ public:
     // Call this to set the brightness of an "on" LED
     void    set_brightness(unsigned char brightness, bool update_display = false);
 
-    // Call this to determine the display orientation.  0 = Normal, 1 = Upside down
-    void    set_orientation(int orientation, bool update_display = true);
+    // Call this to determine the display orientation.  true = Normal, false = Upside down
+    void    set_orientation(bool orientation, bool update_display = true);
 
     // Call this to draw a vertical bar in a given column
     void    vertical_bar(int column, bool update_display = true);
@@ -57,14 +57,14 @@ protected:
     // The number of physical LEDs that we have
     enum { PHYS_COLS = 15, PHYS_ROWS = 7};
 
-    // A 16x8 bitmap of the display
+    // A 16x9 bitmap of the display
     uint16_t m_bitmap[MAX_ROWS];
 
     // This is the value that will be PWM'd for an LED that is on
     unsigned char m_brightness;
 
-    // Display orientation: 0 = normal, 1 = flip it upside down
-    int     m_orientation;
+    // Display orientation
+    bool     m_orientation;
 
     // The two characters most recently displayed on the screen
     unsigned char m_current_char[2];

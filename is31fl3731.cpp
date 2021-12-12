@@ -356,7 +356,7 @@ void IS31FL3731::display_image()
 
     // Create a bitmask with a 1 in either the left-most or right-most bit 
     // that corresponds to a physical LED
-    uint16_t initial_mask = (m_orientation == 0) ? (1 << 15) : (1 << missing_led_cols);
+    uint16_t initial_mask = (m_orientation) ? (1 << 15) : (1 << missing_led_cols);
 
     // Loop through each row of the display from top to bottom
     for (int row = 0; row < PHYS_ROWS; ++row)
@@ -365,7 +365,7 @@ void IS31FL3731::display_image()
         int led_index = row * MAX_COLS;
 
         // Fetch the LED-is-on bits for the bitmap-row we care about
-        uint16_t row_bits = (m_orientation == 0) ? m_bitmap[row] : m_bitmap[PHYS_ROWS - 1 - row];
+        uint16_t row_bits = (m_orientation) ? m_bitmap[row] : m_bitmap[PHYS_ROWS - 1 - row];
 
         // The mask for this row starts with a 1 in either the left-most or right-most bit
         // that coreresponds to a physical LED
@@ -384,7 +384,7 @@ void IS31FL3731::display_image()
             transmit(cmd, 2);
 
             // And shift to the next (or previous) LED
-            if (m_orientation == 0)
+            if (m_orientation)
                 mask >>= 1;
             else
                 mask <<= 1;
@@ -408,7 +408,7 @@ void IS31FL3731::init(int i2c_address, unsigned char brightness)
     m_brightness = brightness;
 
     // We start out in right-side-up orientation
-    m_orientation = 0;
+    m_orientation = true;
 
     // We don't have any characters currently displayed on screen
     m_current_char[0] = m_current_char[1] = 0;
@@ -467,7 +467,7 @@ void IS31FL3731::set_brightness(unsigned char brightness, bool update_image)
 // set_orientation() - Sets the orientation of the display and optionally redisplays the
 //                     current image
 //=============================================================================================
-void IS31FL3731::set_orientation(int orientation, bool update_image)
+void IS31FL3731::set_orientation(bool orientation, bool update_image)
 {
     // Save the specified orientation for future reference
     m_orientation = orientation;

@@ -272,7 +272,7 @@ protected:
     const int header_size = sizeof(header_t);
 
     // A convenient method for setting data values when the data structure is declared "const"
-    template < class T> void set(const T& dest, T value)
+    template <class T> void set(const T& dest, T value)
     {
         *(T*)&dest = value;
         m_is_dirty = true;

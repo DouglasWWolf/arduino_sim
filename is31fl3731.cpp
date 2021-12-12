@@ -410,9 +410,6 @@ void IS31FL3731::init(int i2c_address, unsigned char brightness)
     // We start out in right-side-up orientation
     m_orientation = true;
 
-    // We don't have any characters currently displayed on screen
-    m_current_char[0] = m_current_char[1] = 0;
-
     // Clear the bitmap.  This is the equivalent of a "clear the screen"
     memset(m_bitmap, 0, sizeof m_bitmap);
 
@@ -473,7 +470,7 @@ void IS31FL3731::set_orientation(bool orientation, bool update_image)
     m_orientation = orientation;
     
     // If the caller wants us to update the image, make it so
-    if (update_image) print(m_current_char[0], m_current_char[1]);
+    if (update_image) display_image();
 }
 //=============================================================================================
 
@@ -539,10 +536,6 @@ void IS31FL3731::print(int display_row, int display_col, uint8_t c)
 //=============================================================================================
 void IS31FL3731::print(char c1, char c2)
 {
-    // Keep track of what two characters we're going to print
-    m_current_char[0] = c1;
-    m_current_char[1] = c2;
-
     // Clear all bits to off
     memset(m_bitmap, 0, sizeof m_bitmap);
 

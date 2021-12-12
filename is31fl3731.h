@@ -66,9 +66,6 @@ protected:
     // Display orientation
     bool     m_orientation;
 
-    // The two characters most recently displayed on the screen
-    unsigned char m_current_char[2];
-
     // The I2C address of the device we're controlling
     unsigned char m_i2c_address;
 };

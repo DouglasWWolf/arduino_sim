@@ -57,7 +57,7 @@ protected:
     // The number of physical LEDs that we have
     enum { PHYS_COLS = 15, PHYS_ROWS = 7};
 
-    // A 16x9 bitmap of the display
+    // A 16x8 bitmap of the display
     uint16_t m_bitmap[MAX_ROWS];
 
     // This is the value that will be PWM'd for an LED that is on

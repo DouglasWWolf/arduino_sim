@@ -51,8 +51,62 @@ protected:
 
 
 
+//=============================================================================================
+// map_led_to_pwm_reg() - Builds a map of which PWM register corresponds to each LED index
+//=============================================================================================
+int MAX_ROWS = 8;
+int MAX_COLS = 16;
+
+unsigned char pwm_reg[128];
+static void map_led_to_pwm_reg()
+{
+    int PWM_BASE_REG = 0x24;
+
+    int row, col;
+    int starting_reg_l = MAX_ROWS - 1;
+    int starting_reg_r = MAX_ROWS + 16 * 7;
+    int index = 0;
+
+
+    // Loop through every row the chip supports
+    for (row = 0; row < MAX_ROWS; ++row)
+    {
+        // For the first 8 columns, register numbers are ascending
+        for (col = 0; col < MAX_COLS / 2; ++col)
+        {
+            pwm_reg[index++] = PWM_BASE_REG + starting_reg_l + col * 16;
+        }
+
+        // For the next 8 columns, register numbers are descending
+        for (col = 0; col < MAX_COLS / 2; ++col)
+        {
+            pwm_reg[index++] = PWM_BASE_REG + starting_reg_r - col * 16;
+        }
+
+        --starting_reg_l;
+        ++starting_reg_r;
+    }
+}
+//=============================================================================================
+
+
+
+
 int main()
 {
+    map_led_to_pwm_reg();
+
+    unsigned char* in = pwm_reg;
+    for (int row = 0; row < MAX_ROWS; ++row)
+    {
+        for (int col = 0; col < MAX_COLS; ++col)
+        {
+            printf("%3i, ", *in++);
+        }
+        printf("\n");
+    }
+
+
     TEST.set_x(3);
     TEST.set_z(41);
 

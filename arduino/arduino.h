@@ -1,4 +1,10 @@
 #pragma once
+#include <wire.h>
+
+#define PROGMEM
+
+unsigned char pgm_read_byte_near(const unsigned char* ptr);
+
 
 unsigned long millis();
 
@@ -31,3 +37,5 @@ extern int PCINT8;
 extern int EICRA;
 extern int EIMSK;
 extern int EIFR;
+
+extern CArduinoWire Wire;

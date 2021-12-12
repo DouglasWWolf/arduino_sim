@@ -46,3 +46,9 @@ int EIFR;
 
 
 
+CArduinoWire Wire;
+
+unsigned char pgm_read_byte_near(const unsigned char* ptr)
+{
+    return *ptr;
+}

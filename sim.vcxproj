@@ -147,6 +147,7 @@
     <ClCompile Include="eeprom_manager.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="int_thread.cpp" />
+    <ClCompile Include="is31fl3731.cpp" />
     <ClCompile Include="mstimer.cpp" />
     <ClCompile Include="rotary_knob.cpp" />
     <ClCompile Include="sim.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="eeprom_manager.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="int_thread.h" />
+    <ClInclude Include="is31fl3731.h" />
     <ClInclude Include="mstimer.h" />
     <ClInclude Include="rotary_knob.h" />
   </ItemGroup>

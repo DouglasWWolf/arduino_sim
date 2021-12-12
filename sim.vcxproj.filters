@@ -45,6 +45,9 @@
     <ClCompile Include="eeprom_base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="is31fl3731.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arduino.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="eeprom_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="is31fl3731.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,7 +21,6 @@
 //=========================================================================================================
 void CSerialServer::on_command(const char* token)
 {
-
     if      token_is("fwrev")   handle_fwrev();
     else if token_is("nv")      handle_nv();
     else if token_is("ee")      handle_nv();

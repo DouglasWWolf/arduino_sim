@@ -36,7 +36,7 @@ protected:
 protected:
 
     // Message handlers call this to fetch the next available token.  Returns false is none available
-    bool    get_next_token(const char**);
+    bool    get_next_token(const char** p_token);
 
     // Message handlers call these to indicate pass or fail
     bool    pass(const char* fmt = nullptr, ...);

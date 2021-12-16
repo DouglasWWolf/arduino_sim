@@ -47,7 +47,7 @@ protected:
     void    reply(const char* status, const char* fmt, va_list& va);
     void    replyf(const char* fmt, ...);
 
-    // Compares two string. s2 can be in either Flash or RAM
+    // Compares two strings. s2 can be in either Flash or RAM
     bool    compare_token(const char* s1, const char* s2);
 
 private:

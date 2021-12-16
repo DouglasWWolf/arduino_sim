@@ -212,7 +212,7 @@ bool CSerialServerBase::get_next_token(const char** p_retval)
     // One way or another, this is the start of the token we'll hand to the caller
     *p_retval = in;
 
-    // If it was just a lone quote-marks, there's no token
+    // If it was just a lone quote-mark, there's no token
     if (*in == 0)
     {
         m_next_token = in;

@@ -21,22 +21,14 @@
 //=========================================================================================================
 void CSerialServer::on_command(const char* token)
 {
-    const char fwrev  [] PROGMEM = "fwrev";
-    const char nv     [] PROGMEM = "nv";
-    const char ee     [] PROGMEM = "ee";
-    const char reboot [] PROGMEM = "reboot";
-    const char help   [] PROGMEM = "help";
-    const char nvset  [] PROGMEM = "nvset";
-    const char eeset  [] PROGMEM = "eeset";
 
-
-    if      token_is(fwrev)     handle_fwrev();
-    else if token_is(nv)        handle_nv();
-    else if token_is(ee)        handle_nv();
-    else if token_is(reboot)    handle_reboot();
-    else if token_is(help)      handle_help();
-    else if token_is(nvset)     handle_nvset();
-    else if token_is(eeset)     handle_nvset();
+    if      token_is("fwrev")   handle_fwrev();
+    else if token_is("nv")      handle_nv();
+    else if token_is("ee")      handle_nv();
+    else if token_is("reboot")  handle_reboot();
+    else if token_is("help")    handle_help();
+    else if token_is("nvset")   handle_nvset();
+    else if token_is("eeset")   handle_nvset();
 
     else fail_syntax();
 }
@@ -64,8 +56,6 @@ bool CSerialServer::handle_nv()
 {
     const char* token;
 
-    const char dirty  [] PROGMEM = "dirty";
-    const char destroy[] PROGMEM = "destroy";
 
     // Fetch the next token.  If we can't, the user wants us to dump EEPROM
     if (!get_next_token(&token))
@@ -75,14 +65,14 @@ bool CSerialServer::handle_nv()
     }
 
     // Does the user want to see the clean version?
-    if token_is(dirty)
+    if token_is("dirty")
     {
         show_nv(&EEPROM.data);
         return pass();
     }
 
     // Does the user want to destroy the EEPROM?
-    if token_is(destroy)
+    if token_is("destroy")
     {
         EEPROM.destroy();
         return pass();

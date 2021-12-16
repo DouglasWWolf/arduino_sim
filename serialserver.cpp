@@ -55,7 +55,6 @@ bool CSerialServer::handle_nv()
 {
     const char* token;
 
-
     // Fetch the next token.  If we can't, the user wants us to dump EEPROM
     if (!get_next_token(&token))
     {

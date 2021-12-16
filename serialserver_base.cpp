@@ -164,7 +164,7 @@ void CSerialServerBase::handle_new_message()
     // If there are spaces after the first token, skip over them
     while (*in == ' ') *in++ = 0;
 
-    // Make m_token point to the start of our first command parameter
+    // Make m_next_token point to the start of our first command parameter
     m_next_token = in;
 
     // Call the top level command handler

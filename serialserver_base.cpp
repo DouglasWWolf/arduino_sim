@@ -154,7 +154,7 @@ void CSerialServerBase::handle_new_message()
         // Fetch the next input character
         char c = *++in;
 
-        // If we've hit the end of the token, break out of the loo
+        // If we've hit the end of the token, break out of the loop
         if (c == ' ' || c == 0) break;
 
         // Convert uppercase to lowercase

@@ -4,7 +4,7 @@
 #ifndef _SERIALSERVER_BASE_H_
 #define _SERIALSERVER_BASE_H_
 #include <stdint.h>
-
+#include <stdarg.h>
 
 class CSerialServerBase
 {

@@ -203,16 +203,13 @@ bool CSerialServer::handle_nvset()
 {
     const char *token, *name, *value;
 
-    const char dirty[] PROGMEM = "dirty";
-    const char destroy[] PROGMEM = "destroy";
-
     // Fetch the next token, it should be a field name
     if (!get_next_token(&name)) return fail_syntax();
 
     // Fetch the next token, it should be a field value
     if (!get_next_token(&value)) return fail_syntax();
     
-    // Fetch a floating point version of the value
+    // Get a floating point version of the value
     float fvalue = (float)atof(value);
 
     // We want to examine the name token

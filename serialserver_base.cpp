@@ -75,8 +75,8 @@ void CSerialServerBase::execute(bool blocking)
         // Fetch the character
         int c = read();
 
-        // If the read returned a negative value, it means it's input stream has closed
-        if (c < 0 && blocking) break;
+        // If the read returned a negative value, it means it's input stream has no data
+        if (c < 0)  break;
 
         // Convert tabs to spaces
         if (c == 9) c = 32;

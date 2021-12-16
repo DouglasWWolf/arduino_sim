@@ -16,6 +16,8 @@
 
 //=========================================================================================================
 // on_command() - The top level dispatcher for commands
+// 
+// Passed:  token = Pointer to the command string
 //=========================================================================================================
 void CSerialServer::on_command(const char* token)
 {

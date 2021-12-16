@@ -34,7 +34,7 @@ protected:
         return Serial.available();
     }
 
-    char read()
+    int read()
     {
         return Serial.read();
     }

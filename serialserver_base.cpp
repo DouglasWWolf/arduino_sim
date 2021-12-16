@@ -48,21 +48,35 @@ void CSerialServerBase::reset()
 
 
 //=========================================================================================================
-// execute() - State machine... Call this often
+// execute() - State machine: Call this often, or with blocking set to true
+// 
+// If blocking is true:
+//     Virtual function read() should block until it has data to return
+//     If the input stream closes, read() should return -1
+//     If read() returns -1, this routine will return
 //=========================================================================================================
-void CSerialServerBase::execute()
+void CSerialServerBase::execute(bool blocking)
 {
-    // Are there any bytes available to read on the serial port?
-    int count = Serial.available();
+    int count = 0;
 
-    // If there are no characters available to read, we're done
-    if (count == 0) return;
+    // If we're not blocking, then make sure there is data available to read
+    if (!blocking)
+    {
+        // Are there any bytes available to read on the serial port?
+        count = Serial.available();
+
+        // If there are no characters available to read, we're done
+        if (count == 0) return;
+    }
 
     // For each character available
-    while (count--)
+    while (blocking || count--)
     {
         // Fetch the character
-        int c = Serial.read();
+        int c = read();
+
+        // If the read returned a negative value, it means it's input stream has closed
+        if (c < 0 && blocking) break;
 
         // Convert tabs to spaces
         if (c == 9) c = 32;
@@ -93,8 +107,11 @@ void CSerialServerBase::execute()
             // Reset back to an empty message buffer
             reset();
 
-            // We're done handling input characters for now
-            break;
+            // If we're not blocking, let the other state machines have a turn at the CPU
+            if (!blocking) break;
+
+            // We're blocking: go fetch the next character
+            continue;
         }
 
         // If there's room to add this character to the input buffer, make it so

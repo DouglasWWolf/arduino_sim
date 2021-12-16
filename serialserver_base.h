@@ -16,9 +16,8 @@ public:
     // Call this to throw away any partially recieved messages
     void    reset();
 
-    // State machine.  Call this ofen
-    void    execute();
-
+    // State machine.  Either call this often, or call it with blocking = true
+    void    execute(bool blocking = false);
 
 protected:
 
@@ -26,7 +25,7 @@ protected:
     virtual int   is_data_available() = 0;
 
     // This gets called to read an incoming character.  Over-ride this
-    virtual char  read() = 0;
+    virtual int   read() = 0;
 
     // This gets called whenever a new command is received. Over-ride this
     virtual void  on_command(const char* command) = 0;

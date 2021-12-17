@@ -15,6 +15,8 @@ typedef float pid_t;
 //=========================================================================================================
 class CPIDController
 {
+public:
+
     // Constructor
     CPIDController() { reset(); }
     
@@ -33,9 +35,7 @@ class CPIDController
     // Call this to compute a new output value
     pid_t   compute(pid_t pv, pid_t dt);
 
-
-
-public:
+protected:
 
     // This is the measured value we are trying to maintain control of
     pid_t   m_setpoint;

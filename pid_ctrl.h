@@ -12,6 +12,8 @@ typedef float pid_t;
 //     PID.set_constants(....);
 //     PID.set_output_limits(...);
 //     PID.new_setpoint(...)
+// 
+// Periodically call compute().
 //=========================================================================================================
 class CPIDController
 {
@@ -32,7 +34,7 @@ public:
     // Stores new PID constants.  This resets the integral
     void    set_constants(pid_t kp, pid_t ki, pid_t kd);
 
-    // Call this to compute a new output value
+    // Call this to compute a new output value. 
     pid_t   compute(pid_t pv, pid_t dt);
 
 protected:
